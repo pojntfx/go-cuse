@@ -1,6 +1,7 @@
 package cuse
 
 // #cgo CFLAGS: -Wno-error=implicit-function-declaration
+// #cgo LDFLAGS: -lffcall
 // #cgo pkg-config: fuse3
 // #include "stdlib.h"
 // #include "cuse.h"
@@ -76,58 +77,58 @@ func SizeToUint64(size Size) uint64 {
 	return uint64(size)
 }
 
-//export wbcuse_init
-func wbcuse_init(device unsafe.Pointer, userdata Void, conn Conn) {
+//export gocuse_init
+func gocuse_init(device unsafe.Pointer, userdata Void, conn Conn) {
 	(pointer.Restore(device)).(*deviceContainer).device.Init(userdata, conn)
 }
 
-//export wbcuse_init_done
-func wbcuse_init_done(device unsafe.Pointer, userdata Void) {
+//export gocuse_init_done
+func gocuse_init_done(device unsafe.Pointer, userdata Void) {
 	(pointer.Restore(device)).(*deviceContainer).device.InitDone(userdata)
 }
 
-//export wbcuse_destroy
-func wbcuse_destroy(device unsafe.Pointer, userdata Void) {
+//export gocuse_destroy
+func gocuse_destroy(device unsafe.Pointer, userdata Void) {
 	(pointer.Restore(device)).(*deviceContainer).device.Destroy(userdata)
 }
 
-//export wbcuse_open
-func wbcuse_open(device unsafe.Pointer, req Request, fi FileInfo) {
+//export gocuse_open
+func gocuse_open(device unsafe.Pointer, req Request, fi FileInfo) {
 	(pointer.Restore(device)).(*deviceContainer).device.Open(req, fi)
 }
 
-//export wbcuse_read
-func wbcuse_read(device unsafe.Pointer, req Request, size Size, off Offset, fi FileInfo) {
+//export gocuse_read
+func gocuse_read(device unsafe.Pointer, req Request, size Size, off Offset, fi FileInfo) {
 	(pointer.Restore(device)).(*deviceContainer).device.Read(req, size, off, fi)
 }
 
-//export wbcuse_write
-func wbcuse_write(device unsafe.Pointer, req Request, buf Buffer, size Size, off Offset, fi FileInfo) {
+//export gocuse_write
+func gocuse_write(device unsafe.Pointer, req Request, buf Buffer, size Size, off Offset, fi FileInfo) {
 	(pointer.Restore(device)).(*deviceContainer).device.Write(req, buf, size, off, fi)
 }
 
-//export wbcuse_flush
-func wbcuse_flush(device unsafe.Pointer, req Request, fi FileInfo) {
+//export gocuse_flush
+func gocuse_flush(device unsafe.Pointer, req Request, fi FileInfo) {
 	(pointer.Restore(device)).(*deviceContainer).device.Flush(req, fi)
 }
 
-//export wbcuse_release
-func wbcuse_release(device unsafe.Pointer, req Request, fi FileInfo) {
+//export gocuse_release
+func gocuse_release(device unsafe.Pointer, req Request, fi FileInfo) {
 	(pointer.Restore(device)).(*deviceContainer).device.Release(req, fi)
 }
 
-//export wbcuse_fsync
-func wbcuse_fsync(device unsafe.Pointer, req Request, datasync C.int, fi FileInfo) {
+//export gocuse_fsync
+func gocuse_fsync(device unsafe.Pointer, req Request, datasync C.int, fi FileInfo) {
 	(pointer.Restore(device)).(*deviceContainer).device.Fsync(req, int(datasync), fi)
 }
 
-//export wbcuse_ioctl
-func wbcuse_ioctl(device unsafe.Pointer, req Request, cmd C.int, arg Void, fi FileInfo, flags C.uint, in_buf Void, in_bufz Size, out_bufsz Size) {
+//export gocuse_ioctl
+func gocuse_ioctl(device unsafe.Pointer, req Request, cmd C.int, arg Void, fi FileInfo, flags C.uint, in_buf Void, in_bufz Size, out_bufsz Size) {
 	(pointer.Restore(device)).(*deviceContainer).device.Ioctl(req, int(cmd), arg, fi, uint(flags), in_buf, in_bufz, out_bufsz)
 }
 
-//export wbcuse_poll
-func wbcuse_poll(device unsafe.Pointer, req Request, fi FileInfo, ph PollHandle) {
+//export gocuse_poll
+func gocuse_poll(device unsafe.Pointer, req Request, fi FileInfo, ph PollHandle) {
 	(pointer.Restore(device)).(*deviceContainer).device.Poll(req, fi, ph)
 }
 
@@ -145,7 +146,7 @@ func MountDevice(
 		cargs = append(cargs, C.CString(arg))
 	}
 
-	if ret := C.wbcuse_start(
+	if ret := C.gocuse_start(
 		pointer.Save(&deviceContainer{device}),
 
 		C.uint(major),
