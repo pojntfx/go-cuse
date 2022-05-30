@@ -2,6 +2,7 @@ package devices
 
 import (
 	"log"
+	"unsafe"
 
 	"github.com/pojntfx/go-cuse/pkg/cuse"
 )
@@ -75,7 +76,9 @@ func (d *TraceDevice) Fsync(req cuse.Request, datasync int, fi cuse.FileInfo) {
 func (d *TraceDevice) Ioctl(req cuse.Request, cmd int, arg cuse.Void, fi cuse.FileInfo, flags uint, inputBuf cuse.Void, inputBufSize cuse.Size, outBufSize cuse.Size) {
 	log.Println("Ioctl", req, cmd, arg, fi, flags, inputBuf, inputBufSize, outBufSize)
 
-	if err := cuse.ReplyError(req, 0); err != nil {
+	v := 0
+
+	if err := cuse.ReplyIoctl(req, 0, unsafe.Pointer(&v), cuse.Size(unsafe.Sizeof(v))); err != nil {
 		panic(err)
 	}
 }
