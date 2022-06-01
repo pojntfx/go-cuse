@@ -21,7 +21,24 @@ type Size C.ulong
 type Offset C.off_t
 type Buffer *C.char
 type PollHandle *C.fuse_pollhandle
-type IOVec *C.struct_iovec
+
+type IOVec struct {
+	b *C.struct_iovec
+}
+
+func NewIOVec() *IOVec {
+	return &IOVec{
+		b: &C.struct_iovec{},
+	}
+}
+
+func (i *IOVec) SetBase(base unsafe.Pointer) {
+	i.b.iov_base = base
+}
+
+func (i *IOVec) SetLen(len uintptr) {
+	i.b.iov_len = C.size_t(len)
+}
 
 func ReplyOpen(req Request, fi FileInfo) error {
 	if ret := C.fuse_reply_open(req, fi); ret != 0 {
@@ -74,16 +91,16 @@ func ReplyIoctl(req Request, result int, buf unsafe.Pointer, size Size) error {
 	return nil
 }
 
-func ReplyIoctlIOV(req Request, result int, iov IOVec, count int) error {
-	if ret := C.fuse_reply_ioctl_iov(req, C.int(result), iov, C.int(count)); ret != 0 {
+func ReplyIoctlIOV(req Request, result int, iov *IOVec, count int) error {
+	if ret := C.fuse_reply_ioctl_iov(req, C.int(result), iov.b, C.int(count)); ret != 0 {
 		return fmt.Errorf("could not reply with ioctl_iov: error code %v", ret)
 	}
 
 	return nil
 }
 
-func ReplyIoctlRetry(req Request, inIOV IOVec, inCount Size, outIOV IOVec, outCount Size) error {
-	if ret := C.fuse_reply_ioctl_retry(req, inIOV, C.ulong(inCount), outIOV, C.ulong(outCount)); ret != 0 {
+func ReplyIoctlRetry(req Request, inIOV *IOVec, inCount Size, outIOV *IOVec, outCount Size) error {
+	if ret := C.fuse_reply_ioctl_retry(req, (*C.struct_iovec)(pointer.Save(inIOV.b)), C.ulong(inCount), (*C.struct_iovec)(pointer.Save(outIOV.b)), C.ulong(outCount)); ret != 0 {
 		return fmt.Errorf("could not reply with ioctl_retry: error code %v", ret)
 	}
 
