@@ -62,8 +62,19 @@ func (d *IntDevice) Ioctl(req cuse.Request, cmd int, arg cuse.Void, fi cuse.File
 
 	switch cmd {
 	case 1:
-		if err := cuse.ReplyIoctl(req, 0, unsafe.Pointer(&d.value), cuse.Size(unsafe.Sizeof(d.value))); err != nil {
-			panic(err)
+		if inputBufSize == 0 {
+			iov := cuse.NewIOVec()
+
+			iov.SetBase(unsafe.Pointer(arg))
+			iov.SetLen(unsafe.Sizeof(arg))
+
+			if err := cuse.ReplyIoctlRetry(req, iov, 1, cuse.NewIOVec(), 0); err != nil {
+				panic(err)
+			}
+		} else {
+			if err := cuse.ReplyIoctl(req, 0, nil, 0); err != nil {
+				panic(err)
+			}
 		}
 	default:
 		panic("unknown command")
