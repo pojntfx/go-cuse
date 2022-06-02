@@ -100,7 +100,17 @@ func ReplyIoctlIOV(req Request, result int, iov *IOVec, count int) error {
 }
 
 func ReplyIoctlRetry(req Request, inIOV *IOVec, inCount Size, outIOV *IOVec, outCount Size) error {
-	if ret := C.fuse_reply_ioctl_retry(req, (*C.struct_iovec)(pointer.Save(inIOV.b)), C.ulong(inCount), (*C.struct_iovec)(pointer.Save(outIOV.b)), C.ulong(outCount)); ret != 0 {
+	var iov *C.struct_iovec
+	if inIOV != nil {
+		iov = (*C.struct_iovec)(pointer.Save(inIOV.b))
+	}
+
+	var oov *C.struct_iovec
+	if outIOV != nil {
+		oov = (*C.struct_iovec)(pointer.Save(outIOV.b))
+	}
+
+	if ret := C.fuse_reply_ioctl_retry(req, iov, C.ulong(inCount), oov, C.ulong(outCount)); ret != 0 {
 		return fmt.Errorf("could not reply with ioctl_retry: error code %v", ret)
 	}
 

@@ -10,7 +10,7 @@ type Device interface {
 	Flush(req Request, fi FileInfo)
 	Release(req Request, fi FileInfo)
 	Fsync(req Request, datasync int, fi FileInfo)
-	Ioctl(req Request, cmd int, arg Void, fi FileInfo, flags uint, inputBuf Void, inputBufSize Size, outBufSize Size)
+	Ioctl(req Request, cmd int, arg Void, fi FileInfo, flags uint, inputBuf Void, inputBufSize Size, outputBufSize Size)
 	Poll(req Request, fi FileInfo, ph PollHandle)
 }
 

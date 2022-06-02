@@ -7,6 +7,11 @@ import (
 	"github.com/pojntfx/go-cuse/pkg/cuse"
 )
 
+const (
+	fiocGetSize = 0
+	fiocSetSize = 1
+)
+
 type IntDevice struct {
 	value int
 }
@@ -57,29 +62,29 @@ func (d *IntDevice) Fsync(req cuse.Request, datasync int, fi cuse.FileInfo) {
 	}
 }
 
-func (d *IntDevice) Ioctl(req cuse.Request, cmd int, arg cuse.Void, fi cuse.FileInfo, flags uint, inputBuf cuse.Void, inputBufSize cuse.Size, outBufSize cuse.Size) {
-	log.Println("Ioctl", req, cmd, arg, fi, flags, inputBuf, inputBufSize, outBufSize)
+func (d *IntDevice) Ioctl(req cuse.Request, cmd int, arg cuse.Void, fi cuse.FileInfo, flags uint, inputBuf cuse.Void, inputBufSize cuse.Size, outputBufSize cuse.Size) {
+	log.Println("Ioctl", req, cmd, arg, fi, flags, inputBuf, inputBufSize, outputBufSize)
 
 	switch cmd {
-	case 1:
-		if inputBufSize == 0 {
+	case fiocGetSize:
+		if outputBufSize == 0 {
 			iov := cuse.NewIOVec()
 
 			iov.SetBase(unsafe.Pointer(arg))
-			iov.SetLen(unsafe.Sizeof(arg))
+			iov.SetLen(unsafe.Sizeof(d.value))
 
-			if err := cuse.ReplyIoctlRetry(req, iov, 1, cuse.NewIOVec(), 0); err != nil {
+			if err := cuse.ReplyIoctlRetry(req, nil, 0, iov, 1); err != nil {
 				panic(err)
 			}
 		} else {
-			if err := cuse.ReplyIoctl(req, 0, nil, 0); err != nil {
+			if err := cuse.ReplyIoctl(req, 0, unsafe.Pointer(&d.value), cuse.Size(unsafe.Sizeof(d.value))); err != nil {
 				panic(err)
 			}
 		}
+	case fiocSetSize:
 	default:
 		panic("unknown command")
 	}
-
 }
 
 func (d *IntDevice) Poll(req cuse.Request, fi cuse.FileInfo, ph cuse.PollHandle) {

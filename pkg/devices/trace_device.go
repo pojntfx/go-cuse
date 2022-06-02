@@ -73,8 +73,8 @@ func (d *TraceDevice) Fsync(req cuse.Request, datasync int, fi cuse.FileInfo) {
 	}
 }
 
-func (d *TraceDevice) Ioctl(req cuse.Request, cmd int, arg cuse.Void, fi cuse.FileInfo, flags uint, inputBuf cuse.Void, inputBufSize cuse.Size, outBufSize cuse.Size) {
-	log.Println("Ioctl", req, cmd, arg, fi, flags, inputBuf, inputBufSize, outBufSize)
+func (d *TraceDevice) Ioctl(req cuse.Request, cmd int, arg cuse.Void, fi cuse.FileInfo, flags uint, inputBuf cuse.Void, inputBufSize cuse.Size, outputBufSize cuse.Size) {
+	log.Println("Ioctl", req, cmd, arg, fi, flags, inputBuf, inputBufSize, outputBufSize)
 
 	v := 0
 
